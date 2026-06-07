@@ -6,32 +6,19 @@
 // --- 内联回退数据 ---
 const POSTS_FALLBACK = [
   {
-    "id": "001", "title": "基于STM32的数字DC-DC降压变换器设计",
-    "date": "2025-12-15", "category": "DC-DC变换器",
-    "tags": ["DC-DC", "Buck", "STM32", "PID控制"],
-    "summary": "设计并实现了一款基于STM32F334的数字控制Buck变换器，采用数字PID闭环控制，支持恒压/恒流双模式输出，效率最高达94%。",
+    "id": "001", "title": "基于STM32F103C8T6的 120W同步Boost升压变换器设计",
+    "date": "2026-04-15", "category": "120W同步Boost升压变换器",
+    "tags": ["DC-DC", "Boost", "STM32", "PID控制"],
+    "summary": "设计并实现了一款基于STM32F103C8T6的数字控制120W同步Boost升压变换器，采用数字PID闭环控制，支持恒压输出，效率最高达94%。",
     "file": "001-buck-converter.md"
   },
+  
   {
-    "id": "002", "title": "图腾柱无桥PFC数字控制方案",
-    "date": "2025-09-20", "category": "AC-DC / PFC",
-    "tags": ["PFC", "图腾柱", "GaN", "DSP"],
-    "summary": "基于TMS320F280049C DSP实现的图腾柱无桥PFC，采用GaN功率器件，开关频率100kHz，功率因数>0.99，THD<5%。",
-    "file": "002-totem-pole-pfc.md"
-  },
-  {
-    "id": "003", "title": "全桥LLC谐振变换器数字控制",
-    "date": "2025-06-10", "category": "隔离型变换器",
-    "tags": ["LLC", "全桥", "谐振", "DSP", "ZVS"],
-    "summary": "基于DSP的全桥LLC谐振变换器，实现自适应死区调节与突发模式轻载控制，额定功率1kW，峰值效率96.5%。",
-    "file": "003-llc-resonant.md"
-  },
-  {
-    "id": "004", "title": "数字控制双向DC-DC变换器",
-    "date": "2025-03-05", "category": "DC-DC变换器",
-    "tags": ["双向DC-DC", "同步整流", "DSP", "电池管理"],
-    "summary": "用于储能系统的双向Buck-Boost变换器，支持恒流充电/恒压放电平滑切换，额定功率3.3kW。",
-    "file": "004-bidirectional-dcdc.md"
+    "id": "002", "title": "STM32G431C8T6控制的300W 四开关Buck-Boost电路",
+    "date": "2026-06-07", "category": "DC-DC变换器",
+    "tags": ["Buck-Boost", "四开关", "STM32G431", "HRTIM", "数字电源"],
+    "summary": "基于STM32G431C8T6数字控制的四开关Buck-Boost变换器，支持5V~36V输入、3.3V~24V输出，额定功率300W，峰值效率97.2%，采用平均电流模式+电压外环级联PI控制。",
+    "file": "002-buck-boost.md"
   }
 ];
 

@@ -1,4 +1,4 @@
-# 基于STM32的数字DC-DC降压变换器设计
+# 基于STM32F103C8T6的 120W同步Boost升压变换器设计
 
 ## 1. 项目背景与需求
 
@@ -66,74 +66,15 @@ ESR_max = 50mV / 3A ≈ 16.7 mΩ
 
 使用并联型 PI 离散化（后向欧拉），带抗积分饱和 (Anti-windup)：
 
-```c
-// 并联型 PI 控制器，带抗积分饱和
-typedef struct {
-    float Kp;           // 比例增益
-    float Ki;           // 积分增益
-    float Kc;           // 抗积分饱和系数
-    float integral;     // 积分项
-    float out_max;      // 输出上限
-    float out_min;      // 输出下限
-    float prev_error;   // 上次误差
-} PI_Controller;
 
-float PI_Update(PI_Controller *pi, float setpoint, float feedback) {
-    float error = setpoint - feedback;
-
-    // 比例项
-    float p_term = pi->Kp * error;
-
-    // 积分项（梯形积分）
-    pi->integral += pi->Ki * (error + pi->prev_error) * 0.5f * Ts;
-
-    // 计算总输出
-    float output = p_term + pi->integral;
-
-    // 输出限幅 + 抗积分饱和
-    if (output > pi->out_max) {
-        output = pi->out_max;
-        pi->integral -= pi->Kc * (output - pi->out_max); // back-calculation
-    } else if (output < pi->out_min) {
-        output = pi->out_min;
-        pi->integral -= pi->Kc * (output - pi->out_min);
-    }
-
-    pi->prev_error = error;
-    return output;
-}
-```
 
 ### 4.3 HRTIM 配置
 
-STM32F334 的 HRTIM 提供 217ps 分辨率，200kHz 开关频率下占空比分辨率约 15.5 bits。配置为互补输出 + 死区插入：
 
-```c
-// HRTIM 初始化关键配置
-HRTIM_TimeBaseCfgTypeDef tb = {0};
-tb.Period = 720;           // 200kHz @ 144MHz: 144M/200k = 720
-tb.PrescalerRatio = HRTIM_PRESCALERRATIO_DIV1;
-tb.Mode = HRTIM_MODE_CONTINUOUS;
-HAL_HRTIM_TimeBaseConfig(&hhrtim, HRTIM_TIMERINDEX_TIMER_A, &tb);
-
-// 互补输出 + 死区
-HRTIM_OutputCfgTypeDef out = {0};
-out.Polarity = HRTIM_OUTPUTPOLARITY_HIGH;
-out.SetSource = HRTIM_OUTPUTSET_TIMCMP1;
-out.ResetSource = HRTIM_OUTPUTRESET_TIMCMP2;
-out.DeadTimeInsertion = HRTIM_OUTPUTDEADTIME_INSERTION_ENABLED;
-// 死区时间 50ns
-HAL_HRTIM_WaveformOutputConfig(&hhrtim, HRTIM_TIMERINDEX_TIMER_A,
-                                 HRTIM_OUTPUT_TA1, &out);
 ```
 
 ### 4.4 ADC 同步采样
 
-ADC 由 HRTIM 的 CMP4 事件触发，在 PWM 周期中点采样（平均电流法），避免开关噪声干扰。
-
-### 4.5 软启动与模式切换
-
-输出电压从 0V 线性斜坡至目标值，斜率 1V/ms。CV/CC 模式通过比较误差自动切换 —— 当电流误差大于电压误差时自动进入 CC 模式，反之进入 CV 模式，切换过程无过冲。
 
 ## 5. 测试结果
 
