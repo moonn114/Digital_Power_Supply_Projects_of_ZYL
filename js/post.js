@@ -8,7 +8,7 @@ let currentPost = null;
 // --- 加载文章元数据 ---
 async function loadPostMeta() {
   try {
-    const resp = await fetch('/data/posts.json');
+    const resp = await fetch('./data/posts.json');
     if (resp.ok) return await resp.json();
   } catch {}
   return null;
@@ -17,7 +17,7 @@ async function loadPostMeta() {
 // --- 加载 Markdown 内容 ---
 async function loadMarkdown(filename) {
   try {
-    const resp = await fetch('/posts/' + filename);
+    const resp = await fetch('./posts/' + filename);
     if (!resp.ok) throw new Error('Post not found');
     return await resp.text();
   } catch (err) {

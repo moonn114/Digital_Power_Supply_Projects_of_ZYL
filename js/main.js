@@ -40,7 +40,7 @@ let allPosts = [];
 // --- 加载文章索引 ---
 async function loadPosts() {
   try {
-    const resp = await fetch('/data/posts.json');
+    const resp = await fetch('./data/posts.json');
     if (!resp.ok) throw new Error('Failed');
     return await resp.json();
   } catch {
@@ -90,7 +90,7 @@ function renderArticleList(posts) {
   if (empty) empty.style.display = 'none';
 
   list.innerHTML = posts.map(p => `
-    <div class="article-item" onclick="location.href='/post.html?id=${p.file}'">
+    <div class="article-item" onclick="location.href='./post.html?id=${p.file}'">
       <div class="item-title">
         <a href="/post.html?id=${p.file}">${p.title}</a>
       </div>
