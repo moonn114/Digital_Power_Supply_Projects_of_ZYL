@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全桥LLC谐振变换器数字控制 — Digital Power Lab</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav-bar">
+      <a href="/" class="logo">
+        <span class="icon">⚡</span>
+        <span>Digital Power Lab</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/">项目</a></li>
+        <li><a href="/about.html">关于</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <article class="article">
+      <a href="/" class="back-link">← 返回项目列表</a>
+
+      <header class="article-header">
+        <h1>全桥LLC谐振变换器数字控制</h1>
+        <div class="article-meta">
+          <span>📅 2025-06-10</span>
+          <span>✅ 已完成</span>
+          <div class="tags">
+            <span class="card-tag">#LLC</span>
+            <span class="card-tag">#全桥</span>
+            <span class="card-tag">#谐振</span>
+            <span class="card-tag">#DSP</span>
+            <span class="card-tag">#ZVS</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="article-body">
+
+        <h2>1. 项目背景</h2>
+        <p>
+          LLC 谐振变换器凭借全负载范围 ZVS（零电压开关）和副边 ZCS（零电流关断）特性，在高效隔离型 DC-DC 应用中占据主导地位。
+          本项目设计一台 1kW 全桥 LLC，采用 DSP 数字控制，实现自适应死区调节与轻载 Burst 模式，面向工业电源模块应用。
+        </p>
+
+        <table class="spec-table">
+          <tr><th>参数</th><th>指标</th></tr>
+          <tr><td>输入电压</td><td>380V ~ 420V DC (PFC 母线)</td></tr>
+          <tr><td>输出电压</td><td>48V DC (隔离)</td></tr>
+          <tr><td>额定功率</td><td>1kW</td></tr>
+          <tr><td>谐振频率</td><td>150 kHz</td></tr>
+          <tr><td>工作频率范围</td><td>80 kHz ~ 250 kHz</td></tr>
+          <tr><td>峰值效率</td><td>96.5%</td></tr>
+          <tr><td>主控芯片</td><td>TMS320F280049C</td></tr>
+          <tr><td>变压器</td><td>PQ4040, 初级:次级 = 18:4 (中心抽头)</td></tr>
+        </table>
+
+        <h2>2. LLC 谐振参数设计</h2>
+
+        <h3>2.1 谐振网络参数</h3>
+        <p>
+          设计目标：额定输入 400V，输出 48V/21A。变压器匝比：
+        </p>
+        <pre><code>n = Vin_nom / (2 × Vout) = 400 / (2 × 48) ≈ 4.17
+实际取 n = 18:4 = 4.5（略高，留调压余量）</code></pre>
+
+        <p>等效负载电阻（归算至初级）：</p>
+        <pre><code>Rac = 8 × n² × Rload / π²
+    = 8 × 4.5² × (48²/1000) / π²
+    ≈ 8 × 20.25 × 2.304 / 9.87
+    ≈ 38 Ω</code></pre>
+
+        <p>选取 k = Lm/Lr = 6（效率与调压范围的折中），Q = 0.45（满载）：</p>
+        <pre><code>Lr = Q × Rac / (2π × fr) = 0.45 × 38 / (2π × 150k) ≈ 18.1 μH
+Cr = 1 / (2π × fr × Q × Rac) = 1 / (2π × 150k × 0.45 × 38) ≈ 62 nF
+Lm = k × Lr = 6 × 18.1 ≈ 108.6 μH</code></pre>
+
+        <p>实际取值：Lr = 18μH（外置谐振电感，PQ2625），Cr = 60nF（2×30nF 并联，额定 630V），Lm = 110μH（变压器励磁电感）。</p>
+
+        <h3>2.2 ZVS 条件验证</h3>
+        <p>死区时间内励磁电流需完成 MOS 结电容的充放电：</p>
+        <pre><code>Im_pk = n × Vout / (4 × Lm × fr) = 4.5 × 48 / (4 × 110μ × 150k) ≈ 3.27A
+Tdead_min = 2 × Coss × Vin / Im_pk
+          = 2 × 200p × 400 / 3.27 ≈ 49 ns</code></pre>
+        <p>实际死区设为 200ns，留有充足余量。</p>
+
+        <h2>3. 数字控制实现</h2>
+
+        <h3>3.1 变频控制架构</h3>
+        <p>
+          LLC 通过改变开关频率调节输出电压：频率升高→增益下降→输出电压降低；频率降低→增益上升→输出电压升高。
+          采用<strong>电压闭环 PI 控制器</strong>直接输出开关频率：
+        </p>
+        <pre><code>// LLC 频率控制
+fsw = f_nom - PI_Update(pi, Vref, Vout_fb);
+
+// 频率限幅
+if (fsw > FSW_MAX) fsw = FSW_MAX;   // 250 kHz (轻载限制)
+if (fsw < FSW_MIN) fsw = FSW_MIN;   // 80 kHz  (防止进入 ZCS 区)</code></pre>
+
+        <h3>3.2 自适应死区控制</h3>
+        <p>
+          根据负载电流实时计算最佳死区时间：满载时需要较小死区（减小体二极管导通损耗），
+          轻载时需要较大死区（确保 ZVS）。用查表法实现：
+        </p>
+        <pre><code>// 自适应死区查表 (Iload: 0~21A → Tdead: 300ns~120ns)
+const float deadtime_LUT[] = {300, 240, 200, 170, 150, 130, 120, 120};
+uint8_t idx = (uint8_t)(Iload / 3.0f);  // 每 3A 一档
+if (idx > 7) idx = 7;
+Tdead = deadtime_LUT[idx];</code></pre>
+
+        <h3>3.3 Burst 模式（轻载）</h3>
+        <p>
+          当负载低于 5%（约 50W）时，频率已达到上限。继续提高频率会增加开关损耗且效果有限。
+          此时进入 <strong>Burst 模式</strong>：间歇性开关，每 N 个开关周期后停止 M 个周期，降低平均开关损耗：
+        </p>
+        <pre><code>// Burst 模式控制
+if (fsw_request > FSW_MAX) {
+    // 进入 Burst 模式
+    float burst_duty = (fsw_request - FSW_MAX) / (FSW_BURST - FSW_MAX);
+    burst_on_cycles = 20;
+    burst_off_cycles = (uint16_t)(burst_on_cycles / burst_duty - burst_on_cycles);
+    if (burst_off_cycles > 200) burst_off_cycles = 200;  // 限制最大 off 周期
+}</code></pre>
+
+        <h3>3.4 同步整流控制</h3>
+        <p>
+          副边采用中心抽头全波整流 + 同步整流 MOSFET。SR 驱动信号由 DSP 根据初级开关状态和
+          谐振电流过零检测产生，需要补偿驱动和信号传输延迟（约 150ns）。
+        </p>
+
+        <h2>4. 保护功能</h2>
+        <ul>
+          <li><strong>过流保护 (OCP)</strong>：谐振电流逐周期检测，超过阈值 (30A) 立即关闭 PWM</li>
+          <li><strong>过压保护 (OVP)</strong>：输出 > 55V 触发保护</li>
+          <li><strong>过温保护 (OTP)</strong>：变压器和 MOS 温度 > 100°C 降额运行</li>
+          <li><strong>容性模式保护</strong>：检测电流相位，防止进入容性区（ZCS 丢失，开关损耗剧增）</li>
+          <li><strong>软启动</strong>：从 250kHz 逐步降到工作频率，限制启动冲击电流</li>
+        </ul>
+
+        <h2>5. 测试结果</h2>
+
+        <table class="spec-table">
+          <tr><th>测试条件</th><th>频率</th><th>效率</th><th>注</th></tr>
+          <tr><td>Vin=400V, 100W</td><td>230 kHz</td><td>92.1%</td><td>Burst 模式</td></tr>
+          <tr><td>Vin=400V, 300W</td><td>175 kHz</td><td>95.4%</td><td>—</td></tr>
+          <tr><td>Vin=400V, 600W</td><td>148 kHz</td><td>96.5%</td><td>谐振点附近</td></tr>
+          <tr><td>Vin=400V, 1kW</td><td>132 kHz</td><td>96.0%</td><td>—</td></tr>
+          <tr><td>Vin=380V, 1kW</td><td>118 kHz</td><td>95.7%</td><td>低压满载</td></tr>
+        </table>
+
+        <h2>6. 问题与改进</h2>
+
+        <h3>问题 1: 启动时谐振电流过冲</h3>
+        <p>
+          <strong>现象</strong>：上电瞬间谐振电流峰值超过 40A，触发 OCP。<br>
+          <strong>根因</strong>：启动时输出电容电压为 0，谐振网络直接面对短路负载，增益极高。<br>
+          <strong>解决</strong>：从 250kHz 开始扫频下降，同时限制频率下降速率 (1kHz/ms)，使输出电压平滑建立。
+        </p>
+
+        <h3>问题 2: 同步整流误导通</h3>
+        <p>
+          <strong>现象</strong>：轻载时 SR MOSFET 误开通，导致电流倒灌。<br>
+          <strong>根因</strong>：DCM 下谐振电流有过零振荡，SR 检测电路误判。<br>
+          <strong>解决</strong>：轻载时关闭 SR，仅使用体二极管整流；负载 > 20% 后再开启 SR。
+        </p>
+
+        <h2>7. 总结</h2>
+        <p>
+          本项目实现了一款全数字控制的全桥 LLC 谐振变换器，1kW 额定功率下峰值效率 96.5%。
+          数字控制实现了自适应死区、轻载 Burst 模式以及完善的保护功能。LLC 的参数设计（k 值、Q 值选择）
+          需要在效率、调压范围和器件应力之间权衡，FHA (基波近似) 只能作为起点，实际调优需要大量仿真和实验迭代。
+        </p>
+
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>⚡ Digital Power Lab &copy; 2026 — 数字电源项目记录博客</p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数字电源项目博客 — Digital Power Lab</title>
+  <meta name="description" content="记录数字电源项目的设计、调试与优化过程。涵盖DC-DC、PFC、LLC、逆变器等数字控制电源项目。">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 导航栏 -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="icon">⚡</span>
+        <span>Digital Power Lab</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/" class="active">文章</a></li>
+        <li><a href="/about.html">关于</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- 主体：列表 + 侧边栏 -->
+  <div class="main-layout">
+
+    <!-- 左侧：内容区 -->
+    <main class="content-area">
+      <!-- 简介横幅 -->
+      <div class="intro-banner">
+        <h1>⚡ 数字电源项目记录</h1>
+        <p>记录每一个数字控制电源项目的设计思路、调试心得与测试数据</p>
+      </div>
+
+      <!-- 分类筛选条 -->
+      <div class="intro-banner" style="background:var(--bg); padding:16px 20px; margin-bottom:20px;" id="filter-bar">
+        <!-- JS 动态生成 -->
+      </div>
+
+      <!-- 文章列表 -->
+      <div class="article-list" id="article-list">
+        <!-- JS 动态生成 -->
+      </div>
+
+      <!-- 空状态 -->
+      <div class="intro-banner" id="empty-state" style="text-align:center; display:none;">
+        <p style="color:var(--text-muted);">📭 没有找到匹配的文章</p>
+      </div>
+    </main>
+
+    <!-- 右侧：侧边栏 -->
+    <aside class="sidebar">
+      <!-- 搜索 -->
+      <div class="sidebar-widget">
+        <h3>🔍 搜索</h3>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off">
+          <button id="search-btn">搜索</button>
+        </div>
+      </div>
+
+      <!-- 分类 -->
+      <div class="sidebar-widget">
+        <h3>📂 分类</h3>
+        <ul class="category-list" id="category-list">
+          <!-- JS 动态生成 -->
+        </ul>
+      </div>
+
+      <!-- 标签云 -->
+      <div class="sidebar-widget">
+        <h3>🏷️ 标签</h3>
+        <div class="tag-cloud" id="tag-cloud">
+          <!-- JS 动态生成 -->
+        </div>
+      </div>
+
+      <!-- 归档 -->
+      <div class="sidebar-widget">
+        <h3>📅 归档</h3>
+        <ul class="category-list" id="archive-list">
+          <!-- JS 动态生成 -->
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <p>⚡ Digital Power Lab &copy; 2026 — 数字电源项目记录博客</p>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
