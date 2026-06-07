@@ -7,18 +7,25 @@
 const POSTS_FALLBACK = [
   {
     "id": "001", "title": "基于STM32F103C8T6的 120W同步Boost升压变换器设计",
-    "date": "2026-04-15", "category": "120W同步Boost升压变换器",
+    "date": "2026-04-15", "category": "数字电源设计",
     "tags": ["DC-DC", "Boost", "STM32", "PID控制"],
     "summary": "设计并实现了一款基于STM32F103C8T6的数字控制120W同步Boost升压变换器，采用数字PID闭环控制，支持恒压输出，效率最高达94%。",
-    "file": "001-buck-converter.md"
+    "file": "001_Boost-Converter.md"
   },
   
   {
     "id": "002", "title": "STM32G431C8T6控制的300W 四开关Buck-Boost电路",
-    "date": "2026-06-07", "category": "DC-DC变换器",
+    "date": "2026-06-07", "category": "数字电源设计",
     "tags": ["Buck-Boost", "四开关", "STM32G431", "HRTIM", "数字电源"],
     "summary": "基于STM32G431C8T6数字控制的四开关Buck-Boost变换器，支持5V~36V输入、3.3V~24V输出，额定功率300W，峰值效率97.2%，采用平均电流模式+电压外环级联PI控制。",
-    "file": "002-buck-boost.md"
+    "file": "002_Four_Switch_buck_boost.md"
+  },
+  {
+    "id": "003", "title": "基于STM32F103C8T6的120W反激电源设计",
+    "date": "2026-06-08", "category": "数字电源设计",
+    "tags": ["DC-DC", "反激", "STM32", "PID控制"],
+    "summary": "设计并实现了一款基于STM32F103C8T6的数字控制120W反激电源，采用数字PID闭环控制，支持恒压输出，效率最高达94%。",
+    "file": "003_Fly_Back.md"
   }
 ];
 
