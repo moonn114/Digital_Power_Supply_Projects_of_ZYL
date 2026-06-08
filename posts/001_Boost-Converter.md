@@ -59,11 +59,18 @@ Ilp := Il2 + ΔIl2 / 2 = 9.583 A
 输出纹波目标 < 50mVpp。ESR 引起的纹波为主导：
 
 ```
-ΔVout(ESR) = ΔIL × ESR
-ESR_max = 50mV / 3A ≈ 16.7 mΩ
+ΔVo2 := 0.1 V
+
+// 1. 由电容容量引起的
+Co2 := ( Io2 * (1 - Vin_Boost / Vout_Boost) ) / ( ΔVo2 * f2 ) = (4.8 * 10^-4) F
+
+// 2. 由电容ESR引起的
+ESR4 := ΔVo2 / ( (Vout_Boost / Vin_Boost) * Io2 + ( Vin_Boost * (1 - Vin_Boost / Vout_Boost) ) / ( 2 * f2 * L2 ) ) = 0.01 Ω
+
+Cesr4 := (15 * 10^-6 F·Ω) / ESR4 = 0.001 F
 ```
 
-采用 4 颗 47μF MLCC (X7R) + 2 颗 330μF 固态电解并联，总 ESR 约 6mΩ。
+采用 4 颗 47μF MLCC (X7R) + 3 颗 330μF 固态电解并联，总 ESR 约0.01mΩ。
 
 ### 3.3 PCB Layout 注意事项
 

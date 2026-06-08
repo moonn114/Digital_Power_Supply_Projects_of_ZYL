@@ -1,0 +1,12 @@
+{
+  "name": "digital-power-lab-blog",
+  "version": "1.0.0",
+  "description": "⚡ 数字电源项目博客 — Digital Power Lab",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["blog", "power-electronics", "digital-power"],
+  "license": "MIT"
+}

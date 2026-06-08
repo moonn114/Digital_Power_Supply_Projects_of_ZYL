@@ -17,11 +17,14 @@
 ## 快速启动
 
 ```bash
-# Python
-python start.py
+# 方案 A: Node.js（推荐，零依赖）
+node server.js
 
-# Node.js
-npx serve .
+# 或使用 npm
+npm start
+
+# 方案 B: Python（备选）
+python start.py
 ```
 
 访问 `http://localhost:8080`
