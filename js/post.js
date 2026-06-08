@@ -1,6 +1,6 @@
 /**
  * 数字电源项目博客 — 文章详情页脚本
- * 功能：Markdown 渲染、TOC 目录、代码高亮、评论加载
+ * 功能：Markdown 渲染、TOC 目录、代码高亮
  */
 
 let currentPost = null;
@@ -100,44 +100,6 @@ function setupMarked() {
   });
 }
 
-// --- 加载评论 (giscus) ---
-function loadComments() {
-  const container = document.getElementById('giscus-container');
-  if (!container) return;
-
-  // 使用 giscus 评论系统（需配置 GitHub 仓库）
-  // 如果你的仓库支持 giscus，取消下面注释并填入你的 repo
-  container.innerHTML = `
-    <script src="https://giscus.app/client.js"
-      data-repo="YOUR_GITHUB_USERNAME/YOUR_REPO"
-      data-repo-id="YOUR_REPO_ID"
-      data-category="Announcements"
-      data-category-id="YOUR_CATEGORY_ID"
-      data-mapping="pathname"
-      data-strict="0"
-      data-reactions-enabled="1"
-      data-emit-metadata="0"
-      data-input-position="bottom"
-      data-theme="light"
-      data-lang="zh-CN"
-      crossorigin="anonymous"
-      async>
-    <\/script>
-  `;
-
-  // 如果未配置 giscus，显示提示
-  setTimeout(() => {
-    if (!container.querySelector('iframe') && !container.querySelector('script[src]')) {
-      container.innerHTML = `
-        <div style="padding:20px;background:var(--bg-sidebar);border-radius:var(--radius);border:1px solid var(--border);text-align:center;">
-          <p style="color:var(--text-muted);font-size:0.88rem;">
-            💡 评论功能需要配置 <a href="https://giscus.app/" target="_blank">giscus</a>。
-            <br>请在 <code>js/post.js</code> 中填入你的 GitHub 仓库信息即可启用。
-          </p>
-        </div>`;
-    }
-  }, 3000);
-}
 
 // --- 初始化 ---
 async function initPost() {
@@ -196,8 +158,6 @@ async function initPost() {
     });
   }
 
-  // 加载评论
-  loadComments();
 
   // 语法高亮范围
   if (typeof hljs !== 'undefined') {
