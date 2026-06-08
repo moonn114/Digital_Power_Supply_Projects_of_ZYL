@@ -79,7 +79,7 @@ function renderArticleList(posts) {
   list.innerHTML = posts.map(p => `
     <div class="article-item" onclick="location.href='./post.html?id=${p.file}'">
       <div class="item-title">
-        <a href="/post.html?id=${p.file}">${p.title}</a>
+        <a href="./post.html?id=${p.file}">${p.title}</a>
       </div>
       <div class="item-meta">
         <span class="category">${p.category || '未分类'}</span>
